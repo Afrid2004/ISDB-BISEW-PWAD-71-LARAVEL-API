@@ -15,11 +15,12 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->user()->role() != 'admin'){
+        // hasRole comes from stipe role permission 
+        if(!$request->user()->hasRole('admin')){
             return response()->json([
                 "success" => false,
                 "message" => "Unauthorized Access"
-            ]);
+            ], 403);
         }
         return $next($request);
     }
