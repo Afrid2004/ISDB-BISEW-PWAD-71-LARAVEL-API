@@ -9,5 +9,11 @@ Route::get('/users', function (Request $request) {
     return $request->user();
 })->middleware(['auth:sanctum', 'admin']);
 
-//register a new user api
+//register or login a user with api
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post("/logout", [AuthController::class, 'logout']);
+    Route::get("/profile", [AuthController::class, 'profile']);
+});

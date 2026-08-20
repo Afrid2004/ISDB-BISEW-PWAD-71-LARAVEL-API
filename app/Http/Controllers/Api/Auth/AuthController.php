@@ -38,4 +38,47 @@ class AuthController extends Controller
             "token_type"            => "Bearer"
         ], 201);
     }
+
+    public function login(Request $request)
+    {
+        $validated = $request->validate([
+            "email"         => ["required", "email"],
+            "password"      => ["required", "string"],
+        ]);
+
+        // find user 
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message'      => 'Login successful!',
+            'user'         => $user,
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+        ], 200);
+    }
+
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'message'       => 'Profile retrieved successfully',
+            'user'          => $request->user(),
+            'role'          => $request->user()->getRoleNames(),
+        ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Logged out successfully!',
+        ], 200);
+    }
 }
